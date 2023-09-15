@@ -8,6 +8,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var cacheServer string
+
 func main() {
 	sqlurl := os.Getenv("sqlurl")
 	if sqlurl == "" {
@@ -17,6 +19,11 @@ func main() {
 	serverPort := os.Getenv("serverport")
 	if serverPort == "" {
 		log.Fatal("serverPort is none")
+		return
+	}
+	cacheServer = os.Getenv("cacheserver")
+	if serverPort == "" {
+		log.Fatal("cacheserver is none")
 		return
 	}
 

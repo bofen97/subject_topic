@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -64,7 +65,7 @@ func (usubj *UserSubjectServer) ServeHTTP(w http.ResponseWriter, r *http.Request
 					return
 				}
 				fmt.Printf("user [%d]  subject customlabel [%s]\n", uid, UsubjData.CustomLabel)
-
+				go ToCache(UsubjData.CustomLabel)
 				w.WriteHeader(http.StatusOK)
 				return
 
@@ -75,5 +76,39 @@ func (usubj *UserSubjectServer) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 	w.WriteHeader(http.StatusBadRequest)
+
+}
+
+type CacheData struct {
+	Topic string `json:"topic"`
+}
+
+func ToCache(topic string) error {
+	var cachedata = CacheData{
+		Topic: topic,
+	}
+
+	data, err := json.Marshal(cachedata)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	req, err := http.NewRequest("POST", cacheServer+"/cache", bytes.NewBuffer(data))
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	if response.StatusCode == 200 {
+		log.Printf("[%s] To Cache \n", topic)
+	}
+	return nil
 
 }
