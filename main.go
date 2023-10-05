@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"os"
 
+	serviceRegisterCenter "github.com/bofen97/ServiceRegister"
 	_ "github.com/go-sql-driver/mysql"
 )
-
-var cacheServer string
 
 func main() {
 	sqlurl := os.Getenv("sqlurl")
@@ -21,11 +20,19 @@ func main() {
 		log.Fatal("serverPort is none")
 		return
 	}
-	cacheServer = os.Getenv("cacheserver")
-	if serverPort == "" {
-		log.Fatal("cacheserver is none")
+	etcdserver := os.Getenv("etcdserver")
+	if etcdserver == "" {
+		log.Fatal("etcdserver is none")
 		return
 	}
+	src, err := serviceRegisterCenter.NewRegisteService([]string{
+		etcdserver,
+	}, 5)
+	if err != nil {
+		log.Fatal(err)
+	}
+	go src.PutServiceAddr("subject_topic", "subject_topic"+serverPort)
+	go src.ListenLaser()
 
 	usubj := new(UserSubjectServer)
 	usubj.Subjt = new(SubjectTable)
