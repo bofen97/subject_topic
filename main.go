@@ -53,6 +53,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/subject", usubj)
+	mux.HandleFunc("/cancel", usubj.CancelSubjectTopic)
 	server := &http.Server{
 		Addr:    serverPort,
 		Handler: mux,
