@@ -29,8 +29,7 @@ func (sub *SubjectTable) CreateTable() error {
 	query := `
 	CREATE TABLE IF NOT EXISTS userSubjectTable (
 		uid INT(11) NOT NULL,
-		topic TEXT ,
-		customlabel TEXT 
+		topic TEXT 
 	);`
 
 	if _, err := sub.db.Exec(query); err != nil {
@@ -40,6 +39,7 @@ func (sub *SubjectTable) CreateTable() error {
 
 	return nil
 }
+
 func (sub *SubjectTable) InsertIdTopic(uid int, topic string) error {
 	if topic == "" {
 		return nil
@@ -54,15 +54,16 @@ func (sub *SubjectTable) InsertIdTopic(uid int, topic string) error {
 	}
 	return nil
 }
-func (sub *SubjectTable) InsertIdCustomLabel(uid int, custom string) error {
-	if custom == "" {
+
+func (sub *SubjectTable) DeleteIdTopic(uid int, topic string) error {
+	if topic == "" {
 		return nil
 	}
 	queryStr := `
-	insert into userSubjectTable(uid,customlabel) values(?,?)
+	delete from userSubjectTable where uid=? and topic=?
 	`
 
-	if _, err := sub.db.Exec(queryStr, uid, custom); err != nil {
+	if _, err := sub.db.Exec(queryStr, uid, topic); err != nil {
 		log.Fatal(err)
 		return err
 	}
