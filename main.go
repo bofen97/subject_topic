@@ -37,7 +37,10 @@ func main() {
 	usubj := new(UserSubjectServer)
 	usubj.Subjt = new(SubjectTable)
 	usubj.Session = new(SessionTable)
-
+	usubj.SubjectService = new(SubjectServiceTable)
+	if err := usubj.SubjectService.Connect(sqlurl); err != nil {
+		log.Fatal(err)
+	}
 	if err := usubj.Subjt.Connect(sqlurl); err != nil {
 		log.Fatal(err)
 	}

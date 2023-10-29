@@ -13,8 +13,9 @@ import (
 // user http post id ， subject  ,customlabelTopic to db
 
 type UserSubjectServer struct {
-	Subjt   *SubjectTable
-	Session *SessionTable
+	Subjt          *SubjectTable
+	Session        *SessionTable
+	SubjectService *SubjectServiceTable
 }
 type UserSubjectServerData struct {
 	Session string `json:"session"`
@@ -84,6 +85,18 @@ func (usubj *UserSubjectServer) ServeHTTP(w http.ResponseWriter, r *http.Request
 			uid, err := usubj.Session.QuerySessionAndRetUid(UsubjData.Session)
 			if err != nil {
 				log.Printf("Session [%s] error  \n", UsubjData.Session)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			yes, err := usubj.SubjectService.UidIsExpires(uid)
+			if err != nil {
+				log.Print("UidIsExpires  error ")
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			if yes {
+				//reject
+				log.Printf("Uid %d has Is Expired .", uid)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
